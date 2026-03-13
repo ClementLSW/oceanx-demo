@@ -1,0 +1,258 @@
+import { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Volume2, VolumeX, MapPin, Play, Pause } from 'lucide-react';
+import useVideoSync from '../hooks/useVideoSync';
+import ROUTE_ZONES, { ROUTE_POLYLINE } from '../data/zones';
+import { interpolateAlongRoute } from '../utils/geo';
+import Plaque from '../components/XR/Plaque';
+
+export default function LearnScreen({ site, onComplete, onBack }) {
+  const videoRef = useRef(null);
+  const [muted, setMuted] = useState(true);
+  const [playing, setPlaying] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [fallbackMode, setFallbackMode] = useState(false);
+  const [fallbackTime, setFallbackTime] = useState(0);
+  const elapsedRef = useRef(0);
+  const lastTickRef = useRef(null);
+  const fakeVideoRef = useRef({ currentTime: 0 }); // stable ref for fallback
+
+  // Proactively check if video exists — don't rely on onError
+  useEffect(() => {
+    fetch('/video/boardwalk-tour.mp4', { method: 'HEAD' })
+      .then((res) => {
+        if (!res.ok) setFallbackMode(true);
+      })
+      .catch(() => setFallbackMode(true));
+
+    // Also timeout — if video hasn't loaded in 3s, go fallback
+    const timeout = setTimeout(() => {
+      if (!videoRef.current?.readyState) setFallbackMode(true);
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  // Keep fakeVideoRef.currentTime in sync with fallbackTime
+  useEffect(() => {
+    fakeVideoRef.current.currentTime = fallbackTime;
+  }, [fallbackTime]);
+
+  const { currentZone, zoneIndex, progress, totalZones } = useVideoSync(
+    fallbackMode ? fakeVideoRef : videoRef
+  );
+
+  // Fallback timer — uses refs to survive re-renders
+  useEffect(() => {
+    if (!fallbackMode || !playing) {
+      lastTickRef.current = null;
+      return;
+    }
+    const totalDuration = ROUTE_ZONES[ROUTE_ZONES.length - 1].timeEnd;
+    let raf;
+    const tick = (ts) => {
+      if (lastTickRef.current === null) lastTickRef.current = ts;
+      const delta = (ts - lastTickRef.current) / 1000;
+      lastTickRef.current = ts;
+      elapsedRef.current = Math.min(elapsedRef.current + delta, totalDuration);
+      setFallbackTime(elapsedRef.current);
+      if (elapsedRef.current < totalDuration) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        onComplete();
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      lastTickRef.current = null;
+    };
+  }, [fallbackMode, playing, onComplete]);
+
+  const handleVideoError = () => setFallbackMode(true);
+
+  const togglePlay = () => {
+    if (fallbackMode) {
+      setPlaying((p) => !p);
+      return;
+    }
+    if (videoRef.current?.paused) {
+      videoRef.current.play();
+      setPlaying(true);
+    } else {
+      videoRef.current?.pause();
+      setPlaying(false);
+    }
+  };
+
+  const startTour = () => {
+    if (fallbackMode) {
+      setPlaying(true);
+      return;
+    }
+    videoRef.current?.play();
+    setPlaying(true);
+  };
+
+  // Mini-map dot position
+  const dotPos = interpolateAlongRoute(progress, ROUTE_POLYLINE);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="h-full w-full relative bg-navy overflow-hidden"
+    >
+      {/* Video background */}
+      {!fallbackMode ? (
+        <video
+          ref={videoRef}
+          src="/video/boardwalk-tour.mp4"
+          muted={muted}
+          playsInline
+          onCanPlay={() => setVideoReady(true)}
+          onError={handleVideoError}
+          onEnded={onComplete}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        /* Fallback — no video available, show atmospheric background */
+        <div className="absolute inset-0 bg-gradient-to-b from-navy via-teal-dark/30 to-navy flex items-center justify-center">
+          <div className="text-center px-8">
+            {!playing ? (
+              <>
+                <div className="w-16 h-16 rounded-full bg-teal/10 border border-teal/30 flex items-center justify-center mx-auto mb-4">
+                  <MapPin className="w-7 h-7 text-teal" />
+                </div>
+                <p className="text-white/40 text-sm">Sentosa Coastal Trail</p>
+                <p className="text-white/20 text-xs mt-1">Simulated walkthrough</p>
+              </>
+            ) : (
+              <>
+                <p className="text-teal/60 text-xs font-medium tracking-widest uppercase mb-2">Now passing</p>
+                <h2 className="font-display text-2xl text-white/80 leading-tight">
+                  {currentZone?.name || 'Starting tour...'}
+                </h2>
+                <div className="mt-4 flex items-center justify-center gap-1.5">
+                  {ROUTE_ZONES.map((z, i) => (
+                    <div
+                      key={z.id}
+                      className={`h-1.5 rounded-full transition-all duration-500 ${
+                        i <= zoneIndex ? 'bg-teal w-6' : 'bg-white/10 w-3'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Scanline overlay for tech feel */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px)',
+        }}
+      />
+
+      {/* Top bar */}
+      <div className="absolute top-0 left-0 right-0 z-30 safe-top">
+        <div className="flex items-center justify-between px-4 pt-3">
+          <button onClick={onBack} className="glass-dark p-2 rounded-xl">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+
+          {/* Mini-map */}
+          <div className="glass-dark p-2 rounded-xl">
+            <svg viewBox="0 0 60 60" className="w-12 h-12">
+              {/* Route polyline */}
+              <polyline
+                points={ROUTE_POLYLINE.map(([lat, lng]) => {
+                  const x = ((lng - 103.8055) / 0.004) * 50 + 5;
+                  const y = ((1.2595 - lat) / 0.004) * 50 + 5;
+                  return `${x},${y}`;
+                }).join(' ')}
+                fill="none"
+                stroke="rgba(14,165,160,0.4)"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              {/* Active segment highlight */}
+              {currentZone && (
+                <circle
+                  cx={((dotPos.lng - 103.8055) / 0.004) * 50 + 5}
+                  cy={((1.2595 - dotPos.lat) / 0.004) * 50 + 5}
+                  r="3"
+                  fill="#0EA5A0"
+                />
+              )}
+            </svg>
+          </div>
+
+          {/* Zone counter + mute */}
+          <div className="flex items-center gap-2">
+            <span className="glass-dark px-2.5 py-1.5 rounded-xl text-xs font-medium text-white/70">
+              {zoneIndex + 1}/{totalZones}
+            </span>
+            <button
+              onClick={() => setMuted((m) => !m)}
+              className="glass-dark p-2 rounded-xl"
+            >
+              {muted ? <VolumeX className="w-4 h-4 text-white/50" /> : <Volume2 className="w-4 h-4 text-teal" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating Plaque */}
+      <div className="absolute bottom-20 left-0 right-0 z-20">
+        <AnimatePresence mode="wait">
+          {currentZone && (
+            <Plaque
+              key={currentZone.id}
+              data={currentZone.plaque}
+              onAction={onComplete}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom controls */}
+      <div className="absolute bottom-0 left-0 right-0 z-30 safe-bottom px-4 pb-4">
+        {/* Progress bar */}
+        <div className="w-full h-1 bg-white/10 rounded-full mb-3 overflow-hidden">
+          <motion.div
+            className="h-full bg-teal rounded-full"
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+
+        {/* Play/pause + zone name */}
+        {!playing ? (
+          <button
+            onClick={startTour}
+            className="w-full bg-teal hover:bg-teal-dark text-navy font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+          >
+            <Play className="w-5 h-5" /> Start Tour
+          </button>
+        ) : (
+          <div className="flex items-center justify-between">
+            <button onClick={togglePlay} className="glass-dark p-2.5 rounded-xl">
+              {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            </button>
+            <div className="flex items-center gap-2 text-white/50 text-xs">
+              <MapPin className="w-3 h-3 text-teal" />
+              {currentZone?.name || 'Starting...'}
+            </div>
+            <button
+              onClick={onComplete}
+              className="glass-dark px-3 py-2 rounded-xl text-xs font-medium text-teal"
+            >
+              Skip →
+            </button>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
