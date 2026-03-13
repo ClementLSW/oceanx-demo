@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Volume2, VolumeX, MapPin, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Volume2, VolumeX, MapPin, Play } from 'lucide-react';
 import useVideoSync from '../hooks/useVideoSync';
 import ROUTE_ZONES, { ROUTE_POLYLINE } from '../data/zones';
 import { interpolateAlongRoute } from '../utils/geo';
@@ -76,12 +76,15 @@ export default function LearnScreen({ site, onComplete, onBack }) {
     const audio = audioRef.current;
     if (!currentZone?.audio) return;
 
+    // Don't restart if we're already playing this clip (e.g. unlocked in startTour)
+    if (audio.src?.endsWith(currentZone.audio) && !audio.paused) return;
+
     audio.pause();
     audio.src = currentZone.audio;
     audio.currentTime = 0;
 
     if (!muted && playing) {
-      audio.play().catch(() => {}); // catch autoplay rejection silently
+      audio.play().catch(() => {});
     }
 
     return () => audio.pause();
@@ -105,33 +108,16 @@ export default function LearnScreen({ site, onComplete, onBack }) {
     };
   }, []);
 
-  const togglePlay = () => {
-    if (fallbackMode) {
-      setPlaying((p) => {
-        if (p) audioRef.current.pause();
-        else if (!muted) audioRef.current.play().catch(() => {});
-        return !p;
-      });
-      return;
-    }
-    if (videoRef.current?.paused) {
-      videoRef.current.play();
-      if (!muted) audioRef.current.play().catch(() => {});
-      setPlaying(true);
-    } else {
-      videoRef.current?.pause();
-      audioRef.current.pause();
-      setPlaying(false);
-    }
-  };
-
   const startTour = () => {
+    // Unlock audio on user gesture — critical for browser autoplay policy
+    const firstZoneAudio = ROUTE_ZONES[0]?.audio;
+    if (!muted && firstZoneAudio) {
+      audioRef.current.src = firstZoneAudio;
+      audioRef.current.play().catch(() => {});
+    }
+
     if (fallbackMode) {
       setPlaying(true);
-      if (!muted && currentZone?.audio) {
-        audioRef.current.src = currentZone.audio;
-        audioRef.current.play().catch(() => {});
-      }
       return;
     }
     videoRef.current?.play();
@@ -285,7 +271,7 @@ export default function LearnScreen({ site, onComplete, onBack }) {
           />
         </div>
 
-        {/* Play/pause + zone name */}
+        {/* Zone name + skip */}
         {!playing ? (
           <button
             onClick={startTour}
@@ -295,9 +281,6 @@ export default function LearnScreen({ site, onComplete, onBack }) {
           </button>
         ) : (
           <div className="flex items-center justify-between">
-            <button onClick={togglePlay} className="glass-dark p-2.5 rounded-xl">
-              {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            </button>
             <div className="flex items-center gap-2 text-white/50 text-xs">
               <MapPin className="w-3 h-3 text-teal" />
               {currentZone?.name || 'Starting...'}
