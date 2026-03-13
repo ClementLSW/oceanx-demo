@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 
 export default function Plaque({ data, onAction }) {
-  if (!data) return null;
   const [imgError, setImgError] = useState(false);
+
+  if (!data) return null;
 
   const Icon = Icons[data.icon] || Icons.Info;
 

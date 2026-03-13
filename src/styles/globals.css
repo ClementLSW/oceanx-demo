@@ -15,6 +15,12 @@
   .glass-dark {
     @apply bg-navy/70 backdrop-blur-[16px] border border-white/10 rounded-2xl;
   }
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 
 /* Leaflet overrides */

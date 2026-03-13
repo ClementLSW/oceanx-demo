@@ -11,7 +11,6 @@ export default function LearnScreen({ site, onComplete, onBack }) {
   const audioRef = useRef(new Audio());
   const [muted, setMuted] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
   const [fallbackMode, setFallbackMode] = useState(false);
   const [fallbackTime, setFallbackTime] = useState(0);
   const elapsedRef = useRef(0);
@@ -38,7 +37,7 @@ export default function LearnScreen({ site, onComplete, onBack }) {
     fakeVideoRef.current.currentTime = fallbackTime;
   }, [fallbackTime]);
 
-  const { currentZone, zoneIndex, progress, totalZones } = useVideoSync(
+  const { currentZone, zoneIndex, progress } = useVideoSync(
     fallbackMode ? fakeVideoRef : videoRef
   );
 
@@ -140,7 +139,6 @@ export default function LearnScreen({ site, onComplete, onBack }) {
           src="/video/boardwalk-tour.mp4"
           muted={muted}
           playsInline
-          onCanPlay={() => setVideoReady(true)}
           onError={handleVideoError}
           onEnded={onComplete}
           className="absolute inset-0 w-full h-full object-cover"

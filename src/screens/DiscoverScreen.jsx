@@ -19,7 +19,7 @@ const userIcon = L.divIcon({
 const seagrassIcon = (isNearest) =>
   L.divIcon({
     className: isNearest ? 'pulse-marker' : '',
-    html: `<div style="width:${isNearest ? 14 : 10}px;height:${isNearest ? 14 : 10}px;background:#0EA5A0;border:2px solid white;border-radius:50;position:relative;"></div>`,
+    html: `<div style="width:${isNearest ? 14 : 10}px;height:${isNearest ? 14 : 10}px;background:#0EA5A0;border:2px solid white;border-radius:50%;position:relative;"></div>`,
     iconSize: [isNearest ? 14 : 10, isNearest ? 14 : 10],
     iconAnchor: [isNearest ? 7 : 5, isNearest ? 7 : 5],
   });
