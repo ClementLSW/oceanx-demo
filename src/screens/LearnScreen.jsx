@@ -113,6 +113,7 @@ export default function LearnScreen({ site, onComplete, onBack }) {
     const firstZoneAudio = ROUTE_ZONES[0]?.audio;
     if (!muted && firstZoneAudio) {
       audioRef.current.src = firstZoneAudio;
+      audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => {});
     }
 
