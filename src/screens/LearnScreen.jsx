@@ -8,7 +8,8 @@ import Plaque from '../components/XR/Plaque';
 
 export default function LearnScreen({ site, onComplete, onBack }) {
   const videoRef = useRef(null);
-  const [muted, setMuted] = useState(true);
+  const audioRef = useRef(new Audio());
+  const [muted, setMuted] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [fallbackMode, setFallbackMode] = useState(false);
@@ -70,16 +71,56 @@ export default function LearnScreen({ site, onComplete, onBack }) {
 
   const handleVideoError = () => setFallbackMode(true);
 
+  // Narration audio — plays on zone change, respects mute
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!currentZone?.audio) return;
+
+    audio.pause();
+    audio.src = currentZone.audio;
+    audio.currentTime = 0;
+
+    if (!muted && playing) {
+      audio.play().catch(() => {}); // catch autoplay rejection silently
+    }
+
+    return () => audio.pause();
+  }, [currentZone?.id]); // only trigger on zone change
+
+  // Sync mute state to narration audio
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (muted) {
+      audio.pause();
+    } else if (playing && currentZone?.audio) {
+      audio.play().catch(() => {});
+    }
+  }, [muted]);
+
+  // Stop narration on unmount
+  useEffect(() => {
+    return () => {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    };
+  }, []);
+
   const togglePlay = () => {
     if (fallbackMode) {
-      setPlaying((p) => !p);
+      setPlaying((p) => {
+        if (p) audioRef.current.pause();
+        else if (!muted) audioRef.current.play().catch(() => {});
+        return !p;
+      });
       return;
     }
     if (videoRef.current?.paused) {
       videoRef.current.play();
+      if (!muted) audioRef.current.play().catch(() => {});
       setPlaying(true);
     } else {
       videoRef.current?.pause();
+      audioRef.current.pause();
       setPlaying(false);
     }
   };
@@ -87,6 +128,10 @@ export default function LearnScreen({ site, onComplete, onBack }) {
   const startTour = () => {
     if (fallbackMode) {
       setPlaying(true);
+      if (!muted && currentZone?.audio) {
+        audioRef.current.src = currentZone.audio;
+        audioRef.current.play().catch(() => {});
+      }
       return;
     }
     videoRef.current?.play();
