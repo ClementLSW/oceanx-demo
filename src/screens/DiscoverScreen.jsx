@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Navigation, Waves, Clock, ChevronRight, Thermometer } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import useGeolocation from '../hooks/useGeolocation';
 import useWeather from '../hooks/useWeather';
+import useTide from '../hooks/useTide';
 import SITES from '../data/sites';
 import { haversine, formatDistance, findNearest } from '../utils/geo';
 
@@ -26,13 +27,14 @@ const seagrassIcon = (isNearest) =>
 
 function RecenterMap({ lat, lng }) {
   const map = useMap();
-  useMemo(() => { if (lat && lng) map.setView([lat, lng], 12); }, [lat, lng, map]);
+  useEffect(() => { if (lat && lng) map.setView([lat, lng], 12); }, [lat, lng, map]);
   return null;
 }
 
 export default function DiscoverScreen({ onStartTour }) {
   const { position } = useGeolocation();
   const weather = useWeather(position?.lat, position?.lng);
+  const tide = useTide();
   const [selectedSite, setSelectedSite] = useState(null);
 
   const nearest = useMemo(() => {
@@ -150,7 +152,11 @@ export default function DiscoverScreen({ onStartTour }) {
               </div>
               <div className="flex items-center gap-1.5 text-white/70">
                 <Clock className="w-3.5 h-3.5 text-teal" />
-                Low tide in 40 min
+                {activeSite.tideDependent && tide
+                  ? tide.statusStr
+                  : activeSite.tideDependent
+                    ? 'Low-tide access only'
+                    : 'All-tide access'}
               </div>
               <div className="flex items-center gap-1.5 text-white/70">
                 <MapPin className="w-3.5 h-3.5 text-teal" />
@@ -161,6 +167,34 @@ export default function DiscoverScreen({ onStartTour }) {
             {/* Highlight */}
             {activeSite.highlight && (
               <p className="text-white/50 text-xs italic">{activeSite.highlight}</p>
+            )}
+
+            {/* Tide viewing window */}
+            {activeSite.tideDependent && tide?.bestWindow && (
+              <div className={`px-3 py-2 rounded-xl text-xs ${
+                tide.status === 'optimal'
+                  ? 'bg-teal/15 border border-teal/30'
+                  : tide.status === 'visible'
+                    ? 'bg-teal/10 border border-teal/20'
+                    : 'bg-white/5 border border-white/10'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <span className={tide.status === 'optimal' ? 'text-teal font-semibold' : 'text-white/70'}>
+                    {tide.status === 'optimal'
+                      ? '● Seagrass visible now'
+                      : tide.status === 'visible'
+                        ? '◐ Partially visible'
+                        : `Best window: ${tide.bestWindow.label}`}
+                  </span>
+                  <span className="text-white/40">
+                    {tide.bestWindow.windowStart}–{tide.bestWindow.windowEnd}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-1 text-white/40">
+                  <span>Low: {tide.bestWindow.lowHeight}m CD • {tide.bestWindow.windowDuration} min window</span>
+                  <span className="text-white/30">{tide.direction === 'falling' ? '↓' : '↑'} {tide.currentHeightStr}</span>
+                </div>
+              </div>
             )}
 
             {/* CTA */}
