@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 
 export default function Plaque({ data, onAction }) {
   if (!data) return null;
+  const [imgError, setImgError] = useState(false);
 
   const Icon = Icons[data.icon] || Icons.Info;
 
@@ -12,8 +14,21 @@ export default function Plaque({ data, onAction }) {
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 80, opacity: 0 }}
       transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-      className="glass p-4 mx-4 mb-4 max-w-sm"
+      className="glass p-4 mx-4 mb-4 max-w-sm overflow-hidden"
     >
+      {/* Inline image */}
+      {data.image && !imgError && (
+        <div className="relative -mx-4 -mt-4 mb-3 h-32 overflow-hidden">
+          <img
+            src={data.image}
+            alt={data.title}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent" />
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start gap-3 mb-2">
         <div className="w-9 h-9 rounded-xl bg-teal/20 flex items-center justify-center shrink-0">

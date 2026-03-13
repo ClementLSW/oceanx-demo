@@ -159,10 +159,33 @@ export default function LearnScreen({ site, onComplete, onBack }) {
           className="absolute inset-0 w-full h-full object-cover"
         />
       ) : (
-        /* Fallback — no video available, atmospheric background with clear center */
-        <div className="absolute inset-0 bg-gradient-to-b from-navy via-teal-dark/30 to-navy">
+        /* Fallback — crossfading zone images */
+        <div className="absolute inset-0 bg-navy">
+          {/* Pre-render all zone images, crossfade via opacity */}
+          {ROUTE_ZONES.map((zone) => (
+            <div
+              key={zone.id}
+              className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+              style={{ opacity: currentZone?.id === zone.id ? 1 : 0 }}
+            >
+              {zone.bgImage && (
+                <img
+                  src={zone.bgImage}
+                  alt={zone.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              )}
+            </div>
+          ))}
+
+          {/* Gradient overlays for readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-navy/70 via-transparent to-navy/80" />
+          <div className="absolute inset-0 bg-navy/20" />
+
+          {/* Pre-start prompt */}
           {!playing && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center z-10">
               <div className="text-center px-8">
                 <div className="w-16 h-16 rounded-full bg-teal/10 border border-teal/30 flex items-center justify-center mx-auto mb-4">
                   <MapPin className="w-7 h-7 text-teal" />

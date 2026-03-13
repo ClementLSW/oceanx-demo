@@ -7,6 +7,7 @@ const ROUTE_ZONES = [
     lat: 1.2563,
     lng: 103.8092,
     audio: '/audio/narration-01-arrival.mp3',
+    bgImage: '/images/zones/01-siloso-point.jpg',
     plaque: {
       title: 'Welcome to Sentosa',
       subtitle: '19 million visitors a year — and a secret beneath their feet',
@@ -22,6 +23,7 @@ const ROUTE_ZONES = [
     lat: 1.2575,
     lng: 103.8082,
     audio: '/audio/narration-02-fort.mp3',
+    bgImage: '/images/zones/02-fort-siloso.jpg',
     plaque: {
       title: 'A Fort Above, A Meadow Below',
       subtitle: 'Fort Siloso — built from 1878, still guarding the shore',
@@ -37,12 +39,14 @@ const ROUTE_ZONES = [
     lat: 1.2582,
     lng: 103.8075,
     audio: '/audio/narration-03-seagrass-intro.mp3',
+    bgImage: '/images/zones/03-coastal-trail.jpg',
     plaque: {
       title: 'What Is Seagrass?',
       subtitle: 'Not seaweed — true flowering plants',
       body: "Seagrass are the only flowering plants that live entirely underwater in the sea. They have roots, leaves, and produce flowers and seeds — just like plants on land. Singapore has 12 species despite being one of Earth's most urbanized coastlines.",
       icon: 'Sprout',
       stat: '12 species in Singapore',
+      image: '/images/species/seagrass-varieties.jpg',
     },
   },
   {
@@ -53,12 +57,14 @@ const ROUTE_ZONES = [
     lat: 1.2587,
     lng: 103.8068,
     audio: '/audio/narration-04-tape-seagrass.mp3',
+    bgImage: '/images/zones/04-rocky-shore.jpg',
     plaque: {
       title: 'Tape Seagrass',
       subtitle: 'Enhalus acoroides',
       body: "Here on this rocky shore, clumps of Tape seagrass survive — Singapore's longest species, with leaves reaching 1.5 meters. Its tiny male flowers float on the water surface like white styrofoam beads to reach the large female flowers.",
       icon: 'Leaf',
       stat: '4 species found at this shore',
+      image: '/images/species/tape-seagrass.jpg',
     },
   },
   {
@@ -69,6 +75,7 @@ const ROUTE_ZONES = [
     lat: 1.2590,
     lng: 103.8063,
     audio: '/audio/narration-05-carbon.mp3',
+    bgImage: '/images/zones/05-intertidal.jpg',
     plaque: {
       title: 'Blue Carbon Powerhouse',
       subtitle: 'The invisible superpower of seagrass',
@@ -86,6 +93,7 @@ const ROUTE_ZONES = [
     lat: 1.2585,
     lng: 103.8058,
     audio: '/audio/narration-06-survivors.mp3',
+    bgImage: '/images/zones/06-reclamation.jpg',
     plaque: {
       title: 'Survivors',
       subtitle: 'Seagrass that outlasted a mega-resort',
@@ -102,6 +110,7 @@ const ROUTE_ZONES = [
     lat: 1.2575,
     lng: 103.8082,
     audio: '/audio/narration-07-action.mp3',
+    bgImage: '/images/zones/07-return.jpg',
     plaque: {
       title: 'Your Turn',
       subtitle: 'From curiosity to conservation',
@@ -114,20 +123,20 @@ const ROUTE_ZONES = [
 
 // Polyline for the mini-map — Siloso Point → Fort Siloso → Coastal descent → Rocky shore → back
 export const ROUTE_POLYLINE = [
-  [1.2563, 103.8092], // Siloso Point
+  [1.2563, 103.8092],
   [1.2567, 103.8088],
   [1.2571, 103.8085],
-  [1.2575, 103.8082], // Fort Siloso entrance
+  [1.2575, 103.8082],
   [1.2578, 103.8079],
-  [1.2582, 103.8075], // Coastal descent
+  [1.2582, 103.8075],
   [1.2585, 103.8071],
-  [1.2587, 103.8068], // Rocky shore - seagrass
-  [1.2590, 103.8063], // Intertidal zone
+  [1.2587, 103.8068],
+  [1.2590, 103.8063],
   [1.2588, 103.8060],
-  [1.2585, 103.8058], // Reclamation edge
-  [1.2582, 103.8062], // Return path
+  [1.2585, 103.8058],
+  [1.2582, 103.8062],
   [1.2578, 103.8070],
-  [1.2575, 103.8082], // Back to Fort Siloso
+  [1.2575, 103.8082],
 ];
 
 export default ROUTE_ZONES;
