@@ -20,16 +20,18 @@ export default function Plaque({ data, onAction }) {
       {/* Inline image */}
       {data.image && !imgError && (
         <div className="relative -mx-4 -mt-4 mb-3 h-32 overflow-hidden">
-          <picture>
-            <source srcSet={`${data.image}.webp`} type="image/webp" />
-            <source srcSet={`${data.image}.jpg`} type="image/jpeg" />
-            <img
-              src={`${data.image}.jpg`}
-              alt={data.title}
-              className="w-full h-full object-cover"
-              onError={() => setImgError(true)}
-            />
-          </picture>
+          <img
+            src={`${data.image}.jpg`}
+            alt={data.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              if (e.target.src.endsWith('.jpg')) {
+                e.target.src = `${data.image}.webp`;
+              } else {
+                setImgError(true);
+              }
+            }}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent" />
         </div>
       )}
