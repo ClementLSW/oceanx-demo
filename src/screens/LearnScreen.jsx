@@ -154,12 +154,16 @@ export default function LearnScreen({ site, onComplete, onBack }) {
               style={{ opacity: currentZone?.id === zone.id ? 1 : 0 }}
             >
               {zone.bgImage && (
-                <img
-                  src={zone.bgImage}
-                  alt={zone.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                />
+                <picture>
+                  <source srcSet={`${zone.bgImage}.webp`} type="image/webp" />
+                  <source srcSet={`${zone.bgImage}.jpg`} type="image/jpeg" />
+                  <img
+                    src={`${zone.bgImage}.jpg`}
+                    alt={zone.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => { e.target.parentElement.style.display = 'none'; }}
+                  />
+                </picture>
               )}
             </div>
           ))}

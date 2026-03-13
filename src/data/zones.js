@@ -7,7 +7,7 @@ const ROUTE_ZONES = [
     lat: 1.2563,
     lng: 103.8092,
     audio: '/audio/narration-01-arrival.mp3',
-    bgImage: '/images/zones/01-siloso-point.jpg',
+    bgImage: '/images/zones/01-siloso-point',
     plaque: {
       title: 'Welcome to Sentosa',
       subtitle: '19 million visitors a year — and a secret beneath their feet',
@@ -23,7 +23,7 @@ const ROUTE_ZONES = [
     lat: 1.2575,
     lng: 103.8082,
     audio: '/audio/narration-02-fort.mp3',
-    bgImage: '/images/zones/02-fort-siloso.jpg',
+    bgImage: '/images/zones/02-fort-siloso',
     plaque: {
       title: 'A Fort Above, A Meadow Below',
       subtitle: 'Fort Siloso — built from 1878, still guarding the shore',
@@ -39,14 +39,14 @@ const ROUTE_ZONES = [
     lat: 1.2582,
     lng: 103.8075,
     audio: '/audio/narration-03-seagrass-intro.mp3',
-    bgImage: '/images/zones/03-coastal-trail.jpg',
+    bgImage: '/images/zones/03-coastal-trail',
     plaque: {
       title: 'What Is Seagrass?',
       subtitle: 'Not seaweed — true flowering plants',
       body: "Seagrass are the only flowering plants that live entirely underwater in the sea. They have roots, leaves, and produce flowers and seeds — just like plants on land. Singapore has 12 species despite being one of Earth's most urbanized coastlines.",
       icon: 'Sprout',
       stat: '12 species in Singapore',
-      image: '/images/species/seagrass-varieties.jpg',
+      image: '/images/species/seagrass-varieties',
     },
   },
   {
@@ -57,14 +57,14 @@ const ROUTE_ZONES = [
     lat: 1.2587,
     lng: 103.8068,
     audio: '/audio/narration-04-tape-seagrass.mp3',
-    bgImage: '/images/zones/04-rocky-shore.jpg',
+    bgImage: '/images/zones/04-rocky-shore',
     plaque: {
       title: 'Tape Seagrass',
       subtitle: 'Enhalus acoroides',
       body: "Here on this rocky shore, clumps of Tape seagrass survive — Singapore's longest species, with leaves reaching 1.5 meters. Its tiny male flowers float on the water surface like white styrofoam beads to reach the large female flowers.",
       icon: 'Leaf',
       stat: '4 species found at this shore',
-      image: '/images/species/tape-seagrass.jpg',
+      image: '/images/species/tape-seagrass',
     },
   },
   {
@@ -75,7 +75,7 @@ const ROUTE_ZONES = [
     lat: 1.2590,
     lng: 103.8063,
     audio: '/audio/narration-05-carbon.mp3',
-    bgImage: '/images/zones/05-intertidal.jpg',
+    bgImage: '/images/zones/05-intertidal',
     plaque: {
       title: 'Blue Carbon Powerhouse',
       subtitle: 'The invisible superpower of seagrass',
@@ -93,7 +93,7 @@ const ROUTE_ZONES = [
     lat: 1.2585,
     lng: 103.8058,
     audio: '/audio/narration-06-survivors.mp3',
-    bgImage: '/images/zones/06-reclamation.jpg',
+    bgImage: '/images/zones/06-reclamation',
     plaque: {
       title: 'Survivors',
       subtitle: 'Seagrass that outlasted a mega-resort',
@@ -110,7 +110,7 @@ const ROUTE_ZONES = [
     lat: 1.2575,
     lng: 103.8082,
     audio: '/audio/narration-07-action.mp3',
-    bgImage: '/images/zones/07-return.jpg',
+    bgImage: '/images/zones/07-return',
     plaque: {
       title: 'Your Turn',
       subtitle: 'From curiosity to conservation',
