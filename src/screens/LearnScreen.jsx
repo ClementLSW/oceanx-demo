@@ -114,36 +114,19 @@ export default function LearnScreen({ site, onComplete, onBack }) {
           className="absolute inset-0 w-full h-full object-cover"
         />
       ) : (
-        /* Fallback — no video available, show atmospheric background */
-        <div className="absolute inset-0 bg-gradient-to-b from-navy via-teal-dark/30 to-navy flex items-center justify-center">
-          <div className="text-center px-8">
-            {!playing ? (
-              <>
+        /* Fallback — no video available, atmospheric background with clear center */
+        <div className="absolute inset-0 bg-gradient-to-b from-navy via-teal-dark/30 to-navy">
+          {!playing && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center px-8">
                 <div className="w-16 h-16 rounded-full bg-teal/10 border border-teal/30 flex items-center justify-center mx-auto mb-4">
                   <MapPin className="w-7 h-7 text-teal" />
                 </div>
                 <p className="text-white/40 text-sm">Sentosa Coastal Trail</p>
                 <p className="text-white/20 text-xs mt-1">Simulated walkthrough</p>
-              </>
-            ) : (
-              <>
-                <p className="text-teal/60 text-xs font-medium tracking-widest uppercase mb-2">Now passing</p>
-                <h2 className="font-display text-2xl text-white/80 leading-tight">
-                  {currentZone?.name || 'Starting tour...'}
-                </h2>
-                <div className="mt-4 flex items-center justify-center gap-1.5">
-                  {ROUTE_ZONES.map((z, i) => (
-                    <div
-                      key={z.id}
-                      className={`h-1.5 rounded-full transition-all duration-500 ${
-                        i <= zoneIndex ? 'bg-teal w-6' : 'bg-white/10 w-3'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -163,8 +146,8 @@ export default function LearnScreen({ site, onComplete, onBack }) {
           </button>
 
           {/* Mini-map */}
-          <div className="glass-dark p-2 rounded-xl">
-            <svg viewBox="0 0 60 60" className="w-12 h-12">
+          <div className="glass-dark p-2.5 rounded-xl">
+            <svg viewBox="0 0 60 60" className="w-20 h-20">
               {/* Route polyline */}
               <polyline
                 points={ROUTE_POLYLINE.map(([lat, lng]) => {
@@ -174,7 +157,7 @@ export default function LearnScreen({ site, onComplete, onBack }) {
                 }).join(' ')}
                 fill="none"
                 stroke="rgba(14,165,160,0.4)"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
               />
               {/* Active segment highlight */}
@@ -182,18 +165,25 @@ export default function LearnScreen({ site, onComplete, onBack }) {
                 <circle
                   cx={((dotPos.lng - 103.8055) / 0.004) * 50 + 5}
                   cy={((1.2595 - dotPos.lat) / 0.004) * 50 + 5}
-                  r="3"
+                  r="4"
                   fill="#0EA5A0"
                 />
               )}
             </svg>
           </div>
 
-          {/* Zone counter + mute */}
+          {/* Progress dots + mute */}
           <div className="flex items-center gap-2">
-            <span className="glass-dark px-2.5 py-1.5 rounded-xl text-xs font-medium text-white/70">
-              {zoneIndex + 1}/{totalZones}
-            </span>
+            <div className="glass-dark px-2.5 py-2 rounded-xl flex items-center gap-1">
+              {ROUTE_ZONES.map((z, i) => (
+                <div
+                  key={z.id}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${
+                    i <= zoneIndex ? 'bg-teal w-4' : 'bg-white/15 w-1.5'
+                  }`}
+                />
+              ))}
+            </div>
             <button
               onClick={() => setMuted((m) => !m)}
               className="glass-dark p-2 rounded-xl"
@@ -205,7 +195,7 @@ export default function LearnScreen({ site, onComplete, onBack }) {
       </div>
 
       {/* Floating Plaque */}
-      <div className="absolute bottom-20 left-0 right-0 z-20">
+      <div className="absolute bottom-20 left-0 right-0 z-20 flex justify-center">
         <AnimatePresence mode="wait">
           {currentZone && (
             <Plaque
